@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Alfred Stier <xal@quantentunnel.de>. All rights reserved.
+// Copyright (C) 2021 Alfred Stier <xal@quantentunnel.de>.
 // Use of this source code is governed by a Zero-Clause BSD license that can
 // be found in the EXAMPLES_LICENSE file.
 
@@ -7,7 +7,7 @@ A basic example for the PCF8574.
 */
 
 import gpio
-import serial.protocols.i2c as i2c
+import i2c
 import pcf8574 show *
 
 main:
