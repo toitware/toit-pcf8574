@@ -4,17 +4,17 @@
 
 import binary show BIG_ENDIAN
 import serial
-import serial.protocols.i2c as i2c
+import i2c
 import gpio
 
 /**
-TOIT driver PCF8574 i2c I/O port expander
+Toit driver for the PCF8574 i2c I/O port expander.
 */
 
 class PCF8574:
   device_ /i2c.Device
 
-  /** The default I2C address base for the PCF8574 plus Jumper setting A2, A1, A0 */
+  /** The default I2C address base for the PCF8574 plus Jumper setting A2, A1, A0. */
   static I2C_ADDRESS ::= 0x20
   static I2C_ADDRESS_000 ::= 0x20
   static I2C_ADDRESS_001 ::= 0x21
@@ -27,7 +27,7 @@ class PCF8574:
 
   _state := 0b00000000         // default to all OFF, after power on
 
-  /** The alternate I2C address base for the PCF8574A  */
+  /** The alternate I2C address base for the PCF8574A. */
   static I2C_ADDRESS_ALT ::= 0x38
 
   constructor .device_:
