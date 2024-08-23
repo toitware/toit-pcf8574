@@ -15,7 +15,7 @@ main:
   scl := gpio.Pin 21
   bus := i2c.Bus --sda=sda --scl=scl --frequency=100_000
 
-  device := bus.device PCF8574.I2C_ADDRESS_ALT
+  device := bus.device PCF8574.I2C-ADDRESS-ALT
   pcf := PCF8574 device
 
   ret := pcf.read        // Reads status of all port and returns list.
