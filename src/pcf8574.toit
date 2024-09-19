@@ -15,27 +15,43 @@ The PCF8574 is bidirectional, and uses open-drain outputs. That is, it pulls
   resistor is required.
 */
 
-class PCF8574:
+class Pcf8574:
   /** The default I2C address base for the PCF8574 with jumper setting A2, A1, A0. */
   static I2C-ADDRESS ::= 0x20
+  /** The I2C address for a PCF8574 with jumper setting A2=0, A1=0, A0=0. */
   static I2C-ADDRESS-000 ::= 0x20
+  /** The I2C address for a PCF8574 with jumper setting A2=0, A1=0, A0=1. */
   static I2C-ADDRESS-001 ::= 0x21
+  /** The I2C address for a PCF8574 with jumper setting A2=0, A1=1, A0=0. */
   static I2C-ADDRESS-010 ::= 0x22
+  /** The I2C address for a PCF8574 with jumper setting A2=0, A1=1, A0=1. */
   static I2C-ADDRESS-011 ::= 0x23
+  /** The I2C address for a PCF8574 with jumper setting A2=1, A1=0, A0=0. */
   static I2C-ADDRESS-100 ::= 0x24
+  /** The I2C address for a PCF8574 with jumper setting A2=1, A1=0, A0=1. */
   static I2C-ADDRESS-101 ::= 0x25
+  /** The I2C address for a PCF8574 with jumper setting A2=1, A1=1, A0=0. */
   static I2C-ADDRESS-110 ::= 0x26
+  /** The I2C address for a PCF8574 with jumper setting A2=1, A1=1, A0=1. */
   static I2C-ADDRESS-111 ::= 0x27
 
   /** The I2C address base for the PCF8574A with jumper setting A2, A1, A0. */
   static I2C-ADDRESS-A ::= 0x38
+  /** The I2C address for a PCF8574A with jumper setting A2=0, A1=0, A0=0. */
   static I2C-ADDRESS-A-000 ::= 0x38
+  /** The I2C address for a PCF8574A with jumper setting A2=0, A1=0, A0=1. */
   static I2C-ADDRESS-A-001 ::= 0x39
+  /** The I2C address for a PCF8574A with jumper setting A2=0, A1=1, A0=0. */
   static I2C-ADDRESS-A-010 ::= 0x3A
+  /** The I2C address for a PCF8574A with jumper setting A2=0, A1=1, A0=1. */
   static I2C-ADDRESS-A-011 ::= 0x3B
+  /** The I2C address for a PCF8574A with jumper setting A2=1, A1=0, A0=0. */
   static I2C-ADDRESS-A-100 ::= 0x3C
+  /** The I2C address for a PCF8574A with jumper setting A2=1, A1=0, A0=1. */
   static I2C-ADDRESS-A-101 ::= 0x3D
+  /** The I2C address for a PCF8574A with jumper setting A2=1, A1=1, A0=0. */
   static I2C-ADDRESS-A-110 ::= 0x3E
+  /** The I2C address for a PCF8574A with jumper setting A2=1, A1=1, A0=1. */
   static I2C-ADDRESS-A-111 ::= 0x3F
 
   device_/i2c.Device
@@ -58,7 +74,6 @@ class PCF8574:
     to low, then that pin will read as low.
   */
   read -> List:
-    // No filter, alway returns an array with 8 elements.
     bytes := device_.read 1
 
     result := List 8
@@ -68,72 +83,66 @@ class PCF8574:
       state >>= 1
     return result
 
-  /** Sets all expander pins to 1. */
-  set:
-    set --mask=0b11111111
+  /**
+  Reads the current state of the expander pins.
+
+  Returns a single integer where each bit represents the state of a pin.
+
+  The argument $raw must be true.
+  */
+  read --raw/bool -> int:
+    if not raw: throw "INVALID_ARGUMENT"
+
+    bytes := device_.read 1
+    return bytes[0]
 
   /**
-  Sets the given $pin to 1.
-  Other pins remain unaffected.
+  Writes the given $value to the expander pins.
+
+  Each bit in the value represents the state of a pin.
+  Since the expander is open-drain, a 1 in the value will not necessarily
+    result in a high pin. However, a 0 in the value will result in a low pin.
+
+  The argument $raw must be true.
   */
-  set --pin/int:
+  write --raw/bool value/int -> none:
+    if not raw: throw "INVALID_ARGUMENT"
+    if not 0 <= value <= 0xFF: throw "INVALID_ARGUMENT"
+    state_ = value
+    device_.write #[value]
+
+  /**
+  The current state of the expander pins.
+
+  Returns a single integer where each bit represents the state of a pin.
+
+  This is the value that was last written to the expander. It might contain
+    more 1s than the actual state of the pins, since the expander is open-drain.
+  */
+  state -> int:
+    return state_
+
+  /**
+  Sets the given $pin to the given $value.
+  Other pins remain unaffected.
+
+  Uses the $state to avoid modifying other pins.
+  */
+  set --pin/int value/int:
     if not 0 <= pin < 8: throw "INVALID_PIN"
-    set --mask=(1 << pin)
-
-  /**
-  Sets the pins identified by the given $mask to 1.
-  Other pins remain unaffected.
-  */
-  set --mask/int:
-    if not 0 <= mask <= 0xFF: throw "INVALID_MASK"
-    state_ |= mask
-    device_.write #[state_]
-
-  /** Clears all expander pins, setting them to 0. */
-  clear:
-    clear --mask=0b11111111
-
-  /**
-  Clears the given $pin, setting it to 1.
-  Other pins remain unaffected.
-  */
-  clear --pin/int:
-    if not 0 <= pin < 8: throw "INVALID_PIN"
-    clear --mask=(1 << pin)
-
-  /**
-  Clears the pins identified by the given $mask, setting them to 0.
-  Other pins remain unaffected.
-  */
-  clear --mask/int:
-    if not 0 <= mask <= 0xFF: throw "INVALID_MASK"
-    state_ &= ~mask
-    device_.write #[state_]
-
-  /**
-  Toggles all expander pins.
-  If a pin is 0, it becomes 1.
-  If a pin is 1, it becomes 0.
-  */
-  toggle:
-    toggle --mask=0b11111111
+    if value == 1:
+      write --raw (state_ | (1 << pin))
+    else if value == 0:
+      write --raw (state_ & ~(1 << pin))
+    else:
+      throw "INVALID_ARGUMENT"
 
   /**
   Toggles the given $pin.
-  If the pin is 0, it becomes 1.
-  If the pin is 1, it becomes 0.
+
+  Uses the $state to know the current value of the pin, and to avoid
+    modifying other pins.
   */
   toggle --pin/int:
     if not 0 <= pin < 8: throw "INVALID_PIN"
-    toggle --mask=(1 << pin)
-
-  /**
-  Toggles the pins identified by the given $mask.
-  If a pin is 0, it becomes 1.
-  If a pin is 1, it becomes 0.
-  Other pins remain unaffected.
-  */
-  toggle --mask/int:
-    if not 0 <= mask <= 0xFF: throw "INVALID_MASK"
-    state_ ^= mask
-    device_.write #[state_]
+    write --raw (state_ ^ (1 << pin))
