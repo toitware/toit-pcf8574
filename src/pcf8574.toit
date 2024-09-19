@@ -120,10 +120,3 @@ class PCF8574:
     if not 0 <= mask <= 0xFF: throw "INVALID_MASK"
     _state ^= mask
     device_.write #[_state ^ 0b11111111]
-
-
-
-
-
-
-
