@@ -56,7 +56,7 @@ class Pcf8574:
 
   device_/i2c.Device
   /**
-  At power on the pins are all high.
+  At power-on the pins are all high.
   We can't guarantee that the device is in a known state, but there isn't much
     we can do about it.
   */
