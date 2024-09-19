@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can be found
 // in the LICENSE file.
 
-import binary show BIG_ENDIAN
+import binary show BIG-ENDIAN
 import serial
 import i2c
 import gpio
@@ -15,20 +15,20 @@ class PCF8574:
   device_ /i2c.Device
 
   /** The default I2C address base for the PCF8574 plus Jumper setting A2, A1, A0. */
-  static I2C_ADDRESS ::= 0x20
-  static I2C_ADDRESS_000 ::= 0x20
-  static I2C_ADDRESS_001 ::= 0x21
-  static I2C_ADDRESS_010 ::= 0x22
-  static I2C_ADDRESS_011 ::= 0x23
-  static I2C_ADDRESS_100 ::= 0x24
-  static I2C_ADDRESS_101 ::= 0x25
-  static I2C_ADDRESS_110 ::= 0x26
-  static I2C_ADDRESS_111 ::= 0x27
+  static I2C-ADDRESS ::= 0x20
+  static I2C-ADDRESS-000 ::= 0x20
+  static I2C-ADDRESS-001 ::= 0x21
+  static I2C-ADDRESS-010 ::= 0x22
+  static I2C-ADDRESS-011 ::= 0x23
+  static I2C-ADDRESS-100 ::= 0x24
+  static I2C-ADDRESS-101 ::= 0x25
+  static I2C-ADDRESS-110 ::= 0x26
+  static I2C-ADDRESS-111 ::= 0x27
 
   _state := 0b00000000         // default to all OFF, after power on
 
   /** The alternate I2C address base for the PCF8574A. */
-  static I2C_ADDRESS_ALT ::= 0x38
+  static I2C-ADDRESS-ALT ::= 0x38
 
   constructor .device_:
     _bytes := device_.read 1
